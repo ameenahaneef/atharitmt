@@ -1,3 +1,4 @@
+import 'package:atharitmt/core/constants/app_colors.dart';
 import 'package:atharitmt/presentation/home/screens/home_splash.dart';
 import 'package:flutter/material.dart';
 class SplashScreen extends StatelessWidget {
@@ -11,8 +12,8 @@ class SplashScreen extends StatelessWidget {
       }), (route) => false);
     });
     return const Scaffold(
-      backgroundColor: Colors.black,
-      body:  Center(child: Text('UseBy',style: TextStyle(fontSize: 70,color: Colors.white),)),
+      backgroundColor: kBlack,
+      body:  Center(child: Text('UseBy',style: TextStyle(fontSize: 70,color: kWhite),)),
 
     );
   }

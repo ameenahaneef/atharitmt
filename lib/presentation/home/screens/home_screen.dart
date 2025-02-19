@@ -1,6 +1,8 @@
+import 'package:atharitmt/core/constants/app_colors.dart';
 import 'package:atharitmt/core/services/barcodeservices/barcode_services.dart';
 import 'package:atharitmt/core/services/ttsservices/tts_services.dart';
 import 'package:atharitmt/presentation/home/controllers/food_controller.dart';
+import 'package:atharitmt/presentation/home/widgets/column_widget.dart';
 import 'package:atharitmt/presentation/products/screens/scanned_products.dart';
 import 'package:atharitmt/presentation/home/widgets/scan_container.dart';
 import 'package:flutter/material.dart';
@@ -9,16 +11,15 @@ import 'package:get/get.dart';
 class ExpiryDateScanner extends StatelessWidget {
   final TextRecognitionController controller =
       Get.put(TextRecognitionController());
-  //final FlutterTts flutterTts = FlutterTts();
+      
 
   ExpiryDateScanner({super.key});
-
   
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: kBlack,
       body: SingleChildScrollView(
         child: Center(
           child: Padding(
@@ -28,62 +29,44 @@ class ExpiryDateScanner extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 const Elsecontainer(),
-                const SizedBox(height: 20),
+                height20,
                 Obx(() => Text(
                       'Detected Expiry Date: ${controller.expiryDate.value}',
                       style: const TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
-                          color: Colors.white),
+                          color: kWhite),
                     )),
-                const SizedBox(height: 20),
+                height20,
                 Obx(() {
                   String status = controller.expiryStatus.value;
                   Color statusColor;
 
                   if (status == 'Safe to consume') {
-                    statusColor = Colors.green;
+                    statusColor = kGreen;
                   } else if (status == 'Approaching expiry') {
-                    statusColor = Colors.yellow;
+                    statusColor = kYellow;
                   } else if (status == 'Expired') {
-                    statusColor = Colors.red;
+                    statusColor = kRed;
                   } else {
-                    statusColor = Colors.grey;
+                    statusColor = kGrey;
                   }
-
-                  return Column(
-                    children: [
-                      Text(
-                        status,
-                        style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: statusColor),
-                      ),
-                      const SizedBox(height: 10),
-
-                      // Speak Button
-                      ElevatedButton(
-                        onPressed: () => speakStatus(" $status"),
-                        child: const Text("Speak Status"),
-                      ),
-                    ],
-                  );
+speakStatus(status);
+                  return ColumnWidget(status: status, statusColor: statusColor);
                 }),
-                const SizedBox(height: 10),
+                height10,
                 ElevatedButton(
                   onPressed: controller.scanExpiryDate,
                   child: const Text('Scan Expiry Date'),
                 ),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: scanBarcode, // Trigger barcode scanner
-                  child: const Text('Scan Product Barcode'),
+                height20,
+                const ElevatedButton(
+                  onPressed: scanBarcode,
+                  child: Text('Scan Product Barcode'),
                 ),
-                const SizedBox(height: 20),
+                height20,
                 ElevatedButton(
                   onPressed: () {
-                    // Navigate to the page displaying the scanned products
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -100,3 +83,4 @@ class ExpiryDateScanner extends StatelessWidget {
     );
   }
 }
+

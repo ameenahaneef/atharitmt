@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:atharitmt/core/constants/app_colors.dart';
 import 'package:atharitmt/presentation/home/controllers/food_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -14,7 +15,7 @@ class Elsecontainer extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           color: const Color.fromARGB(252, 30, 29, 29),
-          border: Border.all(color: Colors.white),
+          border: Border.all(color: kWhite),
           borderRadius: BorderRadius.circular(30),
         ),
         width: 200,
@@ -29,7 +30,6 @@ class Elsecontainer extends StatelessWidget {
                   width: 200,
                   height: 320,
                   fit: BoxFit.cover,
-                  
                 ),
               );
             } else {
@@ -39,7 +39,7 @@ class Elsecontainer extends StatelessWidget {
                 },
                 icon: const Icon(
                   Icons.qr_code_scanner,
-                  color: Colors.white,
+                  color: kWhite,
                   size: 50,
                 ),
               );

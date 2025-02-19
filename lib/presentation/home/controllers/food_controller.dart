@@ -32,6 +32,7 @@ class TextRecognitionController extends GetxController {
           detectedDate.isNotEmpty ? detectedDate : 'Expiry date not found';
       if (detectedDate.isNotEmpty) {
         final status = _getExpiryStatus(detectedDate);
+        print('😒$status');
         expiryStatus.value = status;
 
         await saveScannedProduct();
@@ -80,8 +81,9 @@ class TextRecognitionController extends GetxController {
       r'(\b(?:\d{1,2}[-/\s]?\d{1,2}(?:[-/\s]?\d{4})?)\b|\b(?:[A-Za-z]{3,9}\.?[-/\s]?\d{1,2},?\s?\d{4})\b|\b(?:[A-Za-z]{3}\.?[-/\s]?\d{1,2})\b)',
     );
 
-    RegExp expiryPattern =
-        RegExp(r'\b(expiry|exp|expiry date|e|bb|b|bestbefore)\b', caseSensitive: false);
+    RegExp expiryPattern = RegExp(
+        r'\b(expiry|exp|expiry date|e|bb|b|bestbefore)\b',
+        caseSensitive: false);
 
     for (TextBlock block in recognizedText.blocks) {
       for (TextLine line in block.lines) {
@@ -106,38 +108,61 @@ class TextRecognitionController extends GetxController {
   }
 
   String _getExpiryStatus(String detectedDate) {
-    try {
-      DateTime expiryDate;
-      DateFormat dateFormat = DateFormat("MMM dd, yyyy");
+    detectedDate = detectedDate.replaceAll(RegExp(r'[^\w\s/,-.:]'), '').trim();
+    RegExp fullDateRegExp = RegExp(r'(\d{2}[./-]\d{2}[./-]\d{4})');
+    RegExp shortDateRegExp = RegExp(r'(\d{2} \d{4})');
 
+    var match = fullDateRegExp.firstMatch(detectedDate);
+
+    if (match == null) {
+      match = shortDateRegExp.firstMatch(detectedDate);
+      if (match != null) {
+        detectedDate = '01 ${match.group(0)}';
+      }
+    } else {
+      detectedDate = match.group(0)!;
+    }
+
+    List<String> possibleFormats = [
+      "dd.MM.yyyy",
+      "MM/dd/yyyy",
+      "yyyy-MM",
+      "MMM dd yyyy",
+      "dd/MM/yyyy",
+      "MM-dd-yyyy",
+      "MM yyyy"
+    ];
+
+    DateTime? expiryDate;
+    final DateTime currentDate = DateTime.now();
+
+    print("Detected Date: $detectedDate");
+
+    for (String format in possibleFormats) {
       try {
-        expiryDate = dateFormat.parse(detectedDate);
+        expiryDate = DateFormat(format).parse(detectedDate);
+        print("Parsed Date: $expiryDate");
+        break;
       } catch (e) {
-        DateFormat fallbackDateFormat1 = DateFormat("MM/dd/yyyy");
-        try {
-          expiryDate = fallbackDateFormat1.parse(detectedDate);
-        } catch (e) {
-          DateFormat fallbackDateFormat2 = DateFormat("yyyy");
-          try {
-            expiryDate = fallbackDateFormat2.parse(detectedDate);
-          } catch (e) {
-            return 'Invalid expiry date';
-          }
-        }
+        print("Error parsing with format $format: $e");
+        continue;
       }
+    }
 
-      final DateTime currentDate = DateTime.now();
-      final difference = expiryDate.difference(currentDate).inDays;
-
-      if (difference > 7) {
-        return 'Safe to consume';
-      } else if (difference <= 7 && difference > 0) {
-        return 'Approaching expiry';
-      } else {
-        return 'Expired';
-      }
-    } catch (e) {
+    if (expiryDate == null) {
+      print("Invalid expiry date format");
       return 'Invalid expiry date';
+    }
+
+    final difference = expiryDate.difference(currentDate).inDays;
+    print("Days difference: $difference");
+
+    if (difference > 7) {
+      return 'Safe to consume';
+    } else if (difference <= 7 && difference > 0) {
+      return 'Approaching expiry';
+    } else {
+      return 'Expired';
     }
   }
 }
