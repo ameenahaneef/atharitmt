@@ -39,6 +39,7 @@ class ScannedProductsPage extends StatelessWidget {
                       : const Icon(Icons.image, size: 50, color: kWhite),
                   title: Text(product.expiryDate, style: const TextStyle(color: kWhite)),
                   subtitle: Text(product.status, style: const TextStyle(color:kWhite)),
+
                 ),
               );
             },

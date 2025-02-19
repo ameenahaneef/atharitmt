@@ -12,5 +12,6 @@ class ScannedProduct extends HiveObject {
   @HiveField(2)
   final String imagePath; 
 
+ 
   ScannedProduct({required this.expiryDate, required this.status, required this.imagePath});
 }

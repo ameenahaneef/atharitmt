@@ -51,6 +51,7 @@ class TextRecognitionController extends GetxController {
     }
 
     final scannedProduct = ScannedProduct(
+      
       imagePath: pickedImagePath.value,
       expiryDate: expiryDate.value,
       status: expiryStatus.value,
