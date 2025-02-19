@@ -2,6 +2,7 @@
 import 'package:atharitmt/data/models/products_model.dart';
 import 'package:atharitmt/presentation/home/screens/splash_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 void main()async {
@@ -17,7 +18,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return GetMaterialApp(
       debugShowCheckedModeBanner: false,
         title: 'Flutter Demo',
         theme: ThemeData(

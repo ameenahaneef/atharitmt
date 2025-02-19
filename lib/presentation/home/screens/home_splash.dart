@@ -22,12 +22,14 @@ class HomeSplash extends StatelessWidget {
                 'Expired or Not? Whats the date on your\n                       food mean',
                 style: TextStyle(color: Colors.white, fontSize: 20),
               )),
-SizedBox(height: 20,),
+              SizedBox(
+                height: 20,
+              ),
               ElevatedButton(
                   onPressed: () {
                     Navigator.of(context)
                         .push(MaterialPageRoute(builder: (context) {
-                      return  ExpiryDateScanner();
+                      return ExpiryDateScanner();
                     }));
                   },
                   style: ElevatedButton.styleFrom(

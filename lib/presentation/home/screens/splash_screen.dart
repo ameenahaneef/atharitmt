@@ -10,7 +10,7 @@ class SplashScreen extends StatelessWidget {
         return const HomeSplash();
       }), (route) => false);
     });
-    return Scaffold(
+    return const Scaffold(
       backgroundColor: Colors.black,
       body:  Center(child: Text('UseBy',style: TextStyle(fontSize: 70,color: Colors.white),)),
 

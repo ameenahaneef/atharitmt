@@ -21,55 +21,58 @@ class TextRecognitionController extends GetxController {
   }
 
   Future<void> scanExpiryDate() async {
-    final detectedDate = await _recognizeText();
-    print("Detected Expiry Date: $detectedDate");
-
-    expiryDate.value =
-        detectedDate.isNotEmpty ? detectedDate : 'Expiry date not found';
-
-    if (detectedDate.isNotEmpty) {
-      final status = _getExpiryStatus(detectedDate);
-      expiryStatus.value = status;
-      await saveScannedProduct();
-    }
-  }
-
-  Future<void> saveScannedProduct() async {
     final pickedFile =
         await ImagePicker().pickImage(source: ImageSource.camera);
+
     if (pickedFile != null) {
-      pickedImagePath.value =
-          pickedFile.path; 
-      final scannedProduct = ScannedProduct(
-        imagePath: pickedImagePath.value,
-        expiryDate: expiryDate.value,
-        status: expiryStatus.value,
-      );
+      pickedImagePath.value = pickedFile.path;
+      update();
+      final detectedDate = await _recognizeText(pickedFile.path);
+      expiryDate.value =
+          detectedDate.isNotEmpty ? detectedDate : 'Expiry date not found';
+      if (detectedDate.isNotEmpty) {
+        final status = _getExpiryStatus(detectedDate);
+        expiryStatus.value = status;
 
-      await box.add(scannedProduct);
-
-      loadScannedProducts();
+        await saveScannedProduct();
+      }
     } else {
       print("No image selected.");
     }
   }
 
-  Future<String> _recognizeText() async {
-    final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.camera);
+  Future<void> saveScannedProduct() async {
+    print("saveScannedProduct called");
 
-    if (pickedFile != null) {
-      final inputImage = InputImage.fromFile(File(pickedFile.path));
-      final textRecognizer =
-          TextRecognizer(script: TextRecognitionScript.latin);
-      final recognizedText = await textRecognizer.processImage(inputImage);
-
-      print("Recognized Text: ${recognizedText.text}");
-
-      return _extractExpiryDate(recognizedText);
-    } else {
-      return '';
+    if (pickedImagePath.value.isEmpty) {
+      print("No image path available.");
+      return;
     }
+
+    final scannedProduct = ScannedProduct(
+      imagePath: pickedImagePath.value,
+      expiryDate: expiryDate.value,
+      status: expiryStatus.value,
+    );
+
+    try {
+      await box.add(scannedProduct);
+      print("Product saved successfully.");
+    } catch (e) {
+      print("Error saving product: $e");
+    }
+
+    loadScannedProducts();
+  }
+
+  Future<String> _recognizeText(String imagePath) async {
+    final inputImage = InputImage.fromFile(File(imagePath));
+    final textRecognizer = TextRecognizer(script: TextRecognitionScript.latin);
+    final recognizedText = await textRecognizer.processImage(inputImage);
+
+    print("Recognized Text: ${recognizedText.text}");
+
+    return _extractExpiryDate(recognizedText);
   }
 
   String _extractExpiryDate(RecognizedText recognizedText) {
@@ -78,26 +81,24 @@ class TextRecognitionController extends GetxController {
     );
 
     RegExp expiryPattern =
-        RegExp(r'\b(expiry|exp|expiry date|e)\b', caseSensitive: false);
+        RegExp(r'\b(expiry|exp|expiry date|e|bb|b|bestbefore)\b', caseSensitive: false);
 
     for (TextBlock block in recognizedText.blocks) {
       for (TextLine line in block.lines) {
-        print("Detected line: ${line.text}"); 
+        print("Detected line: ${line.text}");
 
         if (expiryPattern.hasMatch(line.text)) {
           final match = datePattern.firstMatch(line.text);
           if (match != null) {
-            print(
-                "Matched Date: ${match.group(0)}"); 
+            print("Matched Date: ${match.group(0)}");
             return match.group(0) ?? '';
           }
         }
       }
     }
 
-    return ''; 
+    return '';
   }
-
 
   void loadScannedProducts() {
     final products = box.values.toList();
@@ -112,17 +113,14 @@ class TextRecognitionController extends GetxController {
       try {
         expiryDate = dateFormat.parse(detectedDate);
       } catch (e) {
-        print("Error parsing date with full format: $e");
-        DateFormat fallbackDateFormat1 = DateFormat("MM yyyy");
+        DateFormat fallbackDateFormat1 = DateFormat("MM/dd/yyyy");
         try {
           expiryDate = fallbackDateFormat1.parse(detectedDate);
         } catch (e) {
-          print("Error parsing date with MM yyyy format: $e");
           DateFormat fallbackDateFormat2 = DateFormat("yyyy");
           try {
             expiryDate = fallbackDateFormat2.parse(detectedDate);
           } catch (e) {
-            print("Error parsing date with yyyy format: $e");
             return 'Invalid expiry date';
           }
         }
@@ -139,7 +137,6 @@ class TextRecognitionController extends GetxController {
         return 'Expired';
       }
     } catch (e) {
-      print("Error calculating expiry status: $e");
       return 'Invalid expiry date';
     }
   }
